@@ -1,0 +1,59 @@
+---
+title: "Lab 6 Comparing two means"
+author: ""
+date: `r Sys.Date()`
+output: github_document
+---
+
+Researchers studying the number of electric fish species living in various parts of the Amazon basin were interested in whether the presence of tributaries affected the local number of electric fish species in the main rivers (Fernandes et al. 2004).
+
+They counted the number of electric fish species above and below the entrance point of a major tributary at 12 different river locations.
+
+The data is provided in your GitHub repository.
+
+For each question below, write a sentence answering the question and show the code you used to come up with the answer, if applicable.
+
+## Question A
+
+> What is the mean different in the number of species between areas upstream and downstream of a tributary? What is the 95% confidence interval of this mean difference. Show your code and write a sentence giving your answer
+
+ANSWER
+
+```{r}
+fish_location_summary <-
+  fish_long %>% 
+  group_by(location) %>% 
+  summarize(
+    n = n(),
+    mean = mean(species),
+    sd = sd(species),
+    sem = sd/sqrt(n),
+    upper = mean + 1.96 * sem,
+    lower = mean - 1.96 * sem
+  ) %>% 
+  print()
+
+t.test(formula = species ~ location, data = fish_long)
+
+```
+the mean difference in species is 1.84 and the 95 percent confidence interval is -4.59 and 8.25
+## Question B
+
+> Test the hypothesis that the tributaries have no effect on the number of species of electric fish.
+
+ANSWER
+
+```{r}
+t.test(formula = species ~ location, data = fish_long)
+
+```
+The hypothesis stated above would be wrong since there are more species found downstream than they are in upstream
+## Question C
+
+> State the assumptions that you had to make to complete parts (A) and (B). Create a graph to assess whether one of those assumptions was met.
+
+ANSWER
+
+```{r}
+
+```
