@@ -1,9 +1,29 @@
 ---
 title: "Lab 6 Comparing two means"
-author: ""
-date: `r Sys.Date()`
+author: "Keenan Schissel"
 output: github_document
 ---
+
+```{r}
+# load packages -----------------------------------------------------------
+
+library(tidyverse)
+
+
+# read data ---------------------------------------------------------------
+
+fish <- read_csv("chap12q19ElectricFish.csv")
+
+# put data in tidy format ------------------------------------------------
+
+fish_long <- 
+  pivot_longer(fish, speciesUpstream:speciesDownstream,
+               names_to = "location",
+               values_to = "species") %>% 
+  mutate(location = str_remove(location, c("species"))) %>% 
+  print()
+```
+
 
 Researchers studying the number of electric fish species living in various parts of the Amazon basin were interested in whether the presence of tributaries affected the local number of electric fish species in the main rivers (Fernandes et al. 2004).
 
@@ -36,6 +56,7 @@ fish_location_summary <-
 t.test(formula = species ~ location, data = fish_long)
 
 ```
+
 the mean difference in species is 1.84 and the 95 percent confidence interval is -4.59 and 8.25
 ## Question B
 
@@ -53,6 +74,32 @@ The hypothesis stated above would be wrong since there are more species found do
 > State the assumptions that you had to make to complete parts (A) and (B). Create a graph to assess whether one of those assumptions was met.
 
 ANSWER
+
+```{r}
+
+```
+
+## ANOVA
+
+Fiddler crabs are so called because males have a greatly enlarged "major" claw, which is used to attract females and to defend a burrow.
+
+Darnell and Munguia (2011) recently suggested that this appendage might also act as a heat sink, keeping males cooler while out of the burrow on hot days.
+
+To test this, they placed four groups of crabs into separate plastic cups and supplied a source of radiant heat (60-watt light bulb) from above. The four groups were intact male crabs, male crabs with the major claw removed; male crabs with the other (minor) claw removed (control); and intact female fiddler crabs.
+
+They measured the body temperature of crabs every 10 minutes for 1.5 hours. These measurements were used to calculate a rate of heat gain for every individual crab in degrees C/log minute. Rates of heat gain for all crabs are provided in the accompanying data file.
+
+### Question D
+
+Graph the distribution of body temperatures for each crab type:
+
+```{r}
+
+```
+
+### Question E
+
+Does body temperature varies among crab types? State the null and alternative hypothesis, conduct and ANOVA, and interpret the results.
 
 ```{r}
 
