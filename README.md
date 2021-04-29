@@ -153,7 +153,24 @@ found downstream than they are in upstream \#\# Question C
 
 ANSWER
 
-## ANOVA
+``` r
+fish_long %>% 
+  ggplot(aes(x = species)) +
+  geom_histogram(
+    aes(fill = location), 
+    bins = 5, 
+    alpha = 0.5, 
+    position = "identity",
+  ) +
+  scale_fill_manual(values = c("darkorange", "darkorchid", "cyan4")) +
+  theme_minimal()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- --> we assumed
+the the ditribution would be normal and that the alternative would be
+true. both of these assumptions were not correct the difference could be
+0 since the distribution is not normal and that 95% overlaps 0 \#\#
+ANOVA
 
 Fiddler crabs are so called because males have a greatly enlarged
 “major” claw, which is used to attract females and to defend a
@@ -174,11 +191,117 @@ hours. These measurements were used to calculate a rate of heat gain for
 every individual crab in degrees C/log minute. Rates of heat gain for
 all crabs are provided in the accompanying data file.
 
+``` r
+   crabs<- read_csv("chap15q27FiddlerCrabFans.txt") %>%
+     rename(type = crabType, temp= bodyTemperature)
+```
+
+    ## 
+    ## -- Column specification --------------------------------------------------------
+    ## cols(
+    ##   crabType = col_character(),
+    ##   bodyTemperature = col_double()
+    ## )
+
+``` r
+   crabs 
+```
+
+    ## # A tibble: 85 x 2
+    ##    type    temp
+    ##    <chr>  <dbl>
+    ##  1 female   1.9
+    ##  2 female   1.6
+    ##  3 female   1.4
+    ##  4 female   1.1
+    ##  5 female   1.6
+    ##  6 female   1.8
+    ##  7 female   1.9
+    ##  8 female   1.7
+    ##  9 female   1.5
+    ## 10 female   1.8
+    ## # ... with 75 more rows
+
+``` r
+  temp_means <-
+    crabs %>% 
+    filter(!is.na(temp)) %>%      # remove missing values
+    group_by(type) %>% 
+    summarize(
+      mean = mean(temp),
+      sd = sd(temp),
+      n = n(),
+      sem = sd / sqrt(n),
+      upper = mean + 1.96 * sem,
+      lower = mean - 1.96 * sem
+    ) %>% 
+    print()
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+    ## # A tibble: 4 x 7
+    ##   type                mean    sd     n    sem upper lower
+    ##   <chr>              <dbl> <dbl> <int>  <dbl> <dbl> <dbl>
+    ## 1 female              1.68 0.197    21 0.0430  1.76  1.59
+    ## 2 intact male         1.29 0.226    21 0.0494  1.38  1.19
+    ## 3 male major removed  1.41 0.215    21 0.0469  1.51  1.32
+    ## 4 male minor removed  1.21 0.192    21 0.0419  1.29  1.13
+
 ### Question D
 
 Graph the distribution of body temperatures for each crab type:
+
+``` r
+ ggplot(data = crabs, aes(x = type, y = temp)) +
+    geom_jitter(aes(color = type),
+                width = 0.1,
+                alpha = 0.7,
+                show.legend = FALSE,
+                na.rm = TRUE) +
+    geom_errorbar(aes(y = mean, ymin = lower, ymax = upper), 
+                  data = temp_means,
+                  width = .1, position = position_nudge(.3)) +
+    geom_point(aes(y = mean), data = temp_means,
+               position = position_nudge(.3)) +
+    scale_color_manual(values = c("darkorange","darkorchid","cyan4","blue3"))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ### Question E
 
 Does body temperature varies among crab types? State the null and
 alternative hypothesis, conduct and ANOVA, and interpret the results.
+the value given from the results is smaller than our 0.05 level which
+means we can reject the null and accept the alternative which says that
+one or more crab types will be different form other crabs
+
+``` r
+  aov_crab_summary <-
+    aov(temp~type, data=crabs)
+  aov_crab_summary  
+```
+
+    ## Call:
+    ##    aov(formula = temp ~ type, data = crabs)
+    ## 
+    ## Terms:
+    ##                     type Residuals
+    ## Sum of Squares  2.641310  3.467619
+    ## Deg. of Freedom        3        80
+    ## 
+    ## Residual standard error: 0.2081952
+    ## Estimated effects may be unbalanced
+    ## 1 observation deleted due to missingness
+
+``` r
+  summary(aov_crab_summary)
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)    
+    ## type         3  2.641  0.8804   20.31  7e-10 ***
+    ## Residuals   80  3.468  0.0433                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 1 observation deleted due to missingness
